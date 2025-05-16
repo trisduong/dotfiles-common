@@ -1,0 +1,7 @@
+{
+    "diagnostics.globals": [
+        "vim",
+        "prequire",
+        "has_words_before"
+    ]
+}
