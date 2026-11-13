@@ -25,3 +25,7 @@ vim.keymap.set("n", "<Leader>ih", function()
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 end, opts)
 vim.g.copilot_filetypes = {markdown = true}
+
+vim.g.tagbar_left = 1
+vim.g.tagbar_autofocus = 1
+vim.g.tagbar_width = 30

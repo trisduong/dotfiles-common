@@ -48,3 +48,34 @@ vim.keymap.set('v', '<leader>sw', '<esc><cmd>lua require("spectre").open_visual(
 vim.keymap.set('n', '<leader>sp', '<cmd>lua require("spectre").open_file_search({select_word=true})<CR>', {
     desc = "Search on current file"
 })
+
+-- load the session for the current directory
+vim.keymap.set("n", "<leader>ls", function() require("persistence").load() end)
+
+-- select a session to load
+vim.keymap.set("n", "<leader>lS", function() require("persistence").select() end)
+
+vim.api.nvim_create_user_command('FixWhitespace', function()
+  -- Remove trailing whitespace from all lines
+  vim.cmd('%s/[[:space:]]\\+$//ge')
+  -- Remove whitespace-only lines
+  vim.cmd('%s/^[[:space:]]\\+$//ge')
+end, {
+  desc = 'Remove trailing whitespace and clean whitespace-only lines'
+})
+
+-- Manual config reload command
+vim.api.nvim_create_user_command('ReloadConfig', function()
+  -- Clear the Lua module cache
+  for name, _ in pairs(package.loaded) do
+    if name:match('^configs') or name:match('^plugins') then
+      package.loaded[name] = nil
+    end
+  end
+  
+  -- Reload the configuration
+  vim.cmd('luafile ' .. vim.fn.stdpath('config') .. '/init.lua')
+  vim.notify('Nvim config reloaded!', vim.log.levels.INFO, { title = 'Config' })
+end, {
+  desc = 'Manually reload Neovim configuration'
+})
