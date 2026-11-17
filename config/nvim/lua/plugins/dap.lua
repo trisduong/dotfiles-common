@@ -107,6 +107,11 @@ return {
 			"theHamsta/nvim-dap-virtual-text",
 		},
 		config = function()
+			local dlv_path = vim.fn.exepath("dlv")
+			if dlv_path == "" then
+				dlv_path = vim.fn.expand("~/go/bin/dlv")
+			end
+
 			require("dap-go").setup({
 				dap_configurations = {
 					{
@@ -125,7 +130,7 @@ return {
                 },
 				},
 				delve = {
-					path = "/Users/tris/go/bin/dlv",
+					path = dlv_path,
                 port = "43000",
 				},
 			})

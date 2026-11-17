@@ -36,46 +36,55 @@ vim.keymap.set('n', '<leader>c', function()
   vim.cmd(':%s/\\V' .. vim.fn.escape(pattern, '/') .. '/' .. replace .. '/g')
 end, { noremap = true, silent = true })
 
-vim.keymap.set('n', '<leader>S', '<cmd>lua require("spectre").toggle()<CR>', {
+local is_macos = vim.fn.has("macunix") == 1
+local is_linux = vim.fn.has("linux") == 1
+
+if is_macos then
+  vim.api.nvim_create_user_command('FixBlank', function()
+    vim.cmd('keeppatterns %s/^\\s\\+$//e')
+  end, { range = true, desc = 'Clean whitespace-only blank lines in range or buffer' })
+elseif is_linux then
+  vim.keymap.set('n', '<leader>S', '<cmd>lua require("spectre").toggle()<CR>', {
     desc = "Toggle Spectre"
-})
-vim.keymap.set('n', '<leader>sw', '<cmd>lua require("spectre").open_visual({select_word=true})<CR>', {
+  })
+  vim.keymap.set('n', '<leader>sw', '<cmd>lua require("spectre").open_visual({select_word=true})<CR>', {
     desc = "Search current word"
-})
-vim.keymap.set('v', '<leader>sw', '<esc><cmd>lua require("spectre").open_visual()<CR>', {
+  })
+  vim.keymap.set('v', '<leader>sw', '<esc><cmd>lua require("spectre").open_visual()<CR>', {
     desc = "Search current word"
-})
-vim.keymap.set('n', '<leader>sp', '<cmd>lua require("spectre").open_file_search({select_word=true})<CR>', {
+  })
+  vim.keymap.set('n', '<leader>sp', '<cmd>lua require("spectre").open_file_search({select_word=true})<CR>', {
     desc = "Search on current file"
-})
+  })
 
--- load the session for the current directory
-vim.keymap.set("n", "<leader>ls", function() require("persistence").load() end)
+  -- Load the session for the current directory.
+  vim.keymap.set("n", "<leader>ls", function()
+    require("persistence").load()
+  end)
 
--- select a session to load
-vim.keymap.set("n", "<leader>lS", function() require("persistence").select() end)
+  -- Select a session to load.
+  vim.keymap.set("n", "<leader>lS", function()
+    require("persistence").select()
+  end)
 
-vim.api.nvim_create_user_command('FixWhitespace', function()
-  -- Remove trailing whitespace from all lines
-  vim.cmd('%s/[[:space:]]\\+$//ge')
-  -- Remove whitespace-only lines
-  vim.cmd('%s/^[[:space:]]\\+$//ge')
-end, {
-  desc = 'Remove trailing whitespace and clean whitespace-only lines'
-})
+  vim.api.nvim_create_user_command('FixWhitespace', function()
+    vim.cmd('%s/[[:space:]]\\+$//ge')
+    vim.cmd('%s/^[[:space:]]\\+$//ge')
+  end, {
+    desc = 'Remove trailing whitespace and clean whitespace-only lines'
+  })
 
--- Manual config reload command
-vim.api.nvim_create_user_command('ReloadConfig', function()
-  -- Clear the Lua module cache
-  for name, _ in pairs(package.loaded) do
-    if name:match('^configs') or name:match('^plugins') then
-      package.loaded[name] = nil
+  -- Manual config reload command.
+  vim.api.nvim_create_user_command('ReloadConfig', function()
+    for name, _ in pairs(package.loaded) do
+      if name:match('^configs') or name:match('^plugins') then
+        package.loaded[name] = nil
+      end
     end
-  end
-  
-  -- Reload the configuration
-  vim.cmd('luafile ' .. vim.fn.stdpath('config') .. '/init.lua')
-  vim.notify('Nvim config reloaded!', vim.log.levels.INFO, { title = 'Config' })
-end, {
-  desc = 'Manually reload Neovim configuration'
-})
+
+    vim.cmd('luafile ' .. vim.fn.stdpath('config') .. '/init.lua')
+    vim.notify('Nvim config reloaded!', vim.log.levels.INFO, { title = 'Config' })
+  end, {
+    desc = 'Manually reload Neovim configuration'
+  })
+end
