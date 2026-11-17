@@ -156,13 +156,9 @@ return {
 			)
 			vim.keymap.set("n", "?", vim.lsp.buf.hover, {})
 			vim.keymap.set("n", "gd", vim.lsp.buf.definition, {})
-			if vim.fn.has("macunix") == 1 then
-				vim.keymap.set("n", "gi", vim.lsp.buf.references, {})
-			elseif vim.fn.has("linux") == 1 then
-				vim.keymap.set("n", "gD", vim.lsp.buf.type_definition, {})
-				vim.keymap.set("n", "fb", vim.lsp.buf.format, {})
-				vim.keymap.set("n", "gr", vim.lsp.buf.references, {})
-			end
+         vim.keymap.set("n", "gD", vim.lsp.buf.type_definition, {})
+         vim.keymap.set("n", "bf", vim.lsp.buf.format, {})
+         vim.keymap.set("n", "gr", vim.lsp.buf.references, {})
 			vim.keymap.set("n", "<leader>r", vim.lsp.buf.rename, {})
 			vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, {})
          vim.diagnostic.config({

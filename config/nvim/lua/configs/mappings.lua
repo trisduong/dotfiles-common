@@ -88,3 +88,15 @@ elseif is_linux then
     desc = 'Manually reload Neovim configuration'
   })
 end
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "python",
+  callback = function(args)
+    vim.keymap.set("n", "<leader>if", function()
+      vim.lsp.buf.code_action({
+        context = { only = { "source.organizeImports" } },
+        apply = true,
+      })
+    end, { buffer = args.buf, desc = "Order imports Python" })
+  end,
+})
