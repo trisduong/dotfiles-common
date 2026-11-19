@@ -28,26 +28,40 @@ return {
 			lzd:toggle()
 		end)
 
-		vim.keymap.set("n", "<M-i>", '<CMD>lua require("FTerm").toggle()<CR>')
-		vim.keymap.set("t", "<M-i>", '<C-\\><C-n><CMD>lua require("FTerm").toggle()<CR>')
+		local terminal_o = fterm:new(vim.tbl_deep_extend("force", {}, terminal_window, { ft = "fterm_o" }))
+		local terminal_p = fterm:new(vim.tbl_deep_extend("force", {}, terminal_window, { ft = "fterm_p" }))
 
-		local terminal_o = fterm:new(vim.tbl_deep_extend("force", terminal_window, { ft = "fterm_o" }))
-		local terminal_p = fterm:new(vim.tbl_deep_extend("force", terminal_window, { ft = "fterm_p" }))
+		local function toggle_default()
+			terminal_o:close()
+			terminal_p:close()
+			fterm.toggle()
+		end
 
-		vim.keymap.set("n", "<M-o>", function()
+		local function toggle_o()
+			fterm.close()
+			terminal_p:close()
 			terminal_o:toggle()
-		end, { desc = "Toggle terminal O" })
-		vim.keymap.set("t", "<M-o>", function()
-			vim.cmd("stopinsert")
-			terminal_o:toggle()
-		end, { desc = "Toggle terminal O" })
+		end
 
-		vim.keymap.set("n", "<M-p>", function()
+		local function toggle_p()
+			fterm.close()
+			terminal_o:close()
 			terminal_p:toggle()
-		end, { desc = "Toggle terminal P" })
-		vim.keymap.set("t", "<M-p>", function()
-			vim.cmd("stopinsert")
-			terminal_p:toggle()
-		end, { desc = "Toggle terminal P" })
+		end
+
+		local function from_terminal(toggle)
+			return function()
+				local escape = vim.api.nvim_replace_termcodes("<C-\\><C-n>", true, false, true)
+				vim.api.nvim_feedkeys(escape, "n", false)
+				vim.schedule(toggle)
+			end
+		end
+
+		vim.keymap.set("n", "<M-i>", toggle_default, { desc = "Toggle terminal I" })
+		vim.keymap.set("t", "<M-i>", from_terminal(toggle_default), { desc = "Toggle terminal I" })
+		vim.keymap.set("n", "<M-o>", toggle_o, { desc = "Toggle terminal O" })
+		vim.keymap.set("t", "<M-o>", from_terminal(toggle_o), { desc = "Toggle terminal O" })
+		vim.keymap.set("n", "<M-p>", toggle_p, { desc = "Toggle terminal P" })
+		vim.keymap.set("t", "<M-p>", from_terminal(toggle_p), { desc = "Toggle terminal P" })
 	end,
 }
