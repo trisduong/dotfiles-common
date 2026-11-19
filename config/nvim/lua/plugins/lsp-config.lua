@@ -23,8 +23,7 @@ return {
 	{
 		"neovim/nvim-lspconfig",
 		config = function()
-			-- local lspconfig = require("lspconfig")
-			-- local capabilities = require("cmp_nvim_lsp").default_capabilities()
+			local capabilities = require("cmp_nvim_lsp").default_capabilities()
          vim.lsp.config('lua_ls', {
            settings = {
              Lua = {
@@ -82,6 +81,20 @@ return {
            end,
          })
 
+         local lifecycle_group = vim.api.nvim_create_augroup('LspLifecycle', { clear = true })
+         vim.api.nvim_create_autocmd('LspDetach', {
+           group = lifecycle_group,
+           callback = function(args)
+             local client_id = args.data.client_id
+             vim.schedule(function()
+               local client = vim.lsp.get_client_by_id(client_id)
+               if client and next(client.attached_buffers) == nil then
+                 client:stop()
+               end
+             end)
+           end,
+         })
+
          -- Required: Enable the language server
          -- vim.lsp.enable('ty')
          vim.lsp.config('pyrefly', {
@@ -101,6 +114,7 @@ return {
          vim.lsp.config(
             'ts_ls',
             {
+               capabilities = capabilities,
                settings = {
                   ["typescript"] = {
                      inlayHints = {
@@ -115,6 +129,7 @@ return {
                },
             }
          )
+         vim.lsp.enable('ts_ls')
          vim.lsp.config('gopls', {
            settings = {
              gopls = {
@@ -156,9 +171,8 @@ return {
 			)
 			vim.keymap.set("n", "?", vim.lsp.buf.hover, {})
 			vim.keymap.set("n", "gd", vim.lsp.buf.definition, {})
-         vim.keymap.set("n", "gD", vim.lsp.buf.type_definition, {})
-         vim.keymap.set("n", "bf", vim.lsp.buf.format, {})
-         vim.keymap.set("n", "gr", vim.lsp.buf.references, {})
+      vim.keymap.set("n", "gD", vim.lsp.buf.type_definition, {})
+      vim.keymap.set("n", "gr", vim.lsp.buf.references, {})
 			vim.keymap.set("n", "<leader>r", vim.lsp.buf.rename, {})
 			vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, {})
          vim.diagnostic.config({

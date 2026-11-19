@@ -7,6 +7,9 @@ return {
 		"MunifTanjim/nui.nvim",
 	},
 	config = function()
+		require("neo-tree").setup({
+			auto_clean_after_session_restore = true,
+		})
 		vim.keymap.set("n", "<leader>e", ":Neotree filesystem reveal left<CR>", {})
 		vim.keymap.set("n", "<C-n>", ":Neotree close<CR>", {})
 		vim.keymap.set("n", "<C-h>", ":wincmd h<CR>", { silent = true })

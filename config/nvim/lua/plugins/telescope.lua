@@ -21,6 +21,7 @@ return {
 
          local keymap = vim.keymap.set
          local tb = require("telescope.builtin")
+         local actions = require("telescope.actions")
          local opts = { noremap = true, silent = true }
          require("telescope").setup({
             defaults = {
@@ -32,20 +33,20 @@ return {
                   "%.js.map$",
                },
             },
+            pickers = {
+               buffers = {
+                  mappings = {
+                     i = { ["<C-d>"] = actions.delete_buffer },
+                     n = { ["d"] = actions.delete_buffer },
+                  },
+               },
+            },
          })
-         keymap("n", "<space>fb", function()
-            local opts = {
-               attach_mappings = function(_, map)
-                  -- Map for normal mode in telescope
-                  map("n", "d", function(prompt_bufnr)
-                     local selection = require("telescope.actions.state").get_selected_entry()
-                     require("telescope.actions").delete_buffer(prompt_bufnr)
-                  end)
-                  return true
-               end,
-            }
-            require("telescope.builtin").buffers(opts)
-         end)
+         local function open_buffers()
+             require("telescope.builtin").buffers()
+         end
+         keymap("n", "<space>fb", open_buffers, { desc = "Choose buffer" })
+         keymap("n", "<leader>bb", open_buffers, { desc = "Choose buffer" })
          keymap("n", "<space>lg", ":Telescope resume<cr>", opts)
          keymap("n", "<space>g", ":Telescope current_buffer_fuzzy_find<cr>", opts)
          keymap("v", "<space>g", function()
